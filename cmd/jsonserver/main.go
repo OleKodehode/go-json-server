@@ -6,8 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/OleKodehode/go-json-server/internal/middleware"
-	"github.com/OleKodehode/go-json-server/internal/router"
+	"github.com/OleKodehode/go-json-server/internal/app"
 )
 
 func main() {
@@ -21,9 +20,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	handler := middleware.LoggingMW(mux)
+	handler := app.LoggingMiddleWare(mux)
 
-	mux.HandleFunc("/health", router.HandleHealth)
+	mux.HandleFunc("/health", app.HandleHealth)
 
 	logger.Info("Server starting", "port", port)
 	fmt.Printf("http://localhost:%s", port)
