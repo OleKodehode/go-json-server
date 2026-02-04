@@ -5,6 +5,14 @@ import (
 	"net/http"
 )
 
+func NewRouter() http.Handler {
+	mux := http.NewServeMux()
+	
+	mux.HandleFunc("/health", HandleHealth)
+
+	return LoggingMiddleWare(mux)
+}
+
 // Helper function
 func RespondJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")

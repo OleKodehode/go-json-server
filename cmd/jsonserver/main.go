@@ -18,15 +18,11 @@ func main() {
 		port = "8080"
 	}
 
-	mux := http.NewServeMux()
-
-	handler := app.LoggingMiddleWare(mux)
-
-	mux.HandleFunc("/health", app.HandleHealth)
+	router := app.NewRouter()
 
 	logger.Info("Server starting", "port", port)
 	fmt.Printf("http://localhost:%s", port)
-	if err := http.ListenAndServe(":"+port, handler); err != nil {
+	if err := http.ListenAndServe(":"+port, router); err != nil {
 		logger.Error("Server failed to start", "error", err)
 		os.Exit(1)
 	}
