@@ -18,10 +18,15 @@ func main() {
 		port = "8080"
 	}
 
+	host := os.Getenv("HOST")
+	if host == "" { // dev env
+		host = "localhost"
+	}
+
 	router := app.NewRouter()
 
 	logger.Info("Server starting", "port", port)
-	fmt.Printf("http://localhost:%s", port)
+	fmt.Printf("http://%s:%s/health", host, port) // convenience log
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		logger.Error("Server failed to start", "error", err)
 		os.Exit(1)
