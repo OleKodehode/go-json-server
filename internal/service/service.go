@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/OleKodehode/go-json-server/internal/db"
@@ -13,11 +14,12 @@ type Service struct {
 	DB *db.DB[model.Data]
 }
 
+// Creates a new instance of the Service struct with an attached Database
 func New(db *db.DB[model.Data]) *Service {
 	return &Service{DB: db}
 }
 
-// GET /:name
+// GET /:name -> Returns all entries within the collection
 func (s *Service) GetAll(collection string, filters map[string]string) []map[string]any {
 	collection = normalizeInput(collection)
 
@@ -25,11 +27,13 @@ func (s *Service) GetAll(collection string, filters map[string]string) []map[str
 		return []map[string]any{}
 	}
 	// Check if there are any filters - Apply
+	items := s.DB.Data[collection]
+	items = applyFilters(items, filters)
 
-	return s.DB.Data[collection]
+	return items
 }
 
-// GET /:name/:id
+// GET /:name/:id -> Returns the requsted entry within a collection if it exists
 func (s *Service) GetByID(collection string, id string) map[string]any {
 	collection = normalizeInput(collection)
 
@@ -45,30 +49,42 @@ func (s *Service) GetByID(collection string, id string) map[string]any {
 	return entry
 }
 
-// POST /:name
+// POST /:name -> Creates a new entry within a collection. Creates a new collection if it doesn't exist
 func (s *Service) Create(collection string, item map[string]any) (map[string]any, error) {
 	collection = normalizeInput(collection)
 
 	// checks if the collection exists and creates it if it doesn't exist
 	s.ensureCollectionExists(collection)
 	// add the item to the collection
-	return map[string]any{}, s.DB.Save()
+	if _, ok := item["id"]; !ok {
+		item["id"] = generateID(s.DB.Data[collection])
+	}
+
+	s.DB.Data[collection] = append(s.DB.Data[collection], item)
+
+	// return the item with the added ID field and whether the DB saved successfully
+	return item, s.DB.Save()
 }
 
-// PUT /:name/:id
+// PUT /:name/:id -> Replaces (or creates) a specific entry within a collection.
 func (s *Service) Replace(collection string, id string, item map[string]any) (map[string]any, error) {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return nil, errors.New("Entry not found")
+		return nil, errors.New("Entry not found - Collection doesn't exist")
 	}
 	// Check if the entry exists (id) - Return early if it does not
+	_, index := s.findByID(collection, id)
+
+	if index == -1 {
+		return nil, errors.New("Entry not found - Entry doesn't exist")
+	}
 	// Replace the entry with the new item
-	// Return nil (successful PUT)
+	// Return the updated/created item and whether there were any issues saving the DB
 	return map[string]any{}, s.DB.Save()
 }
 
-// PATCH /:name/:id
+// PATCH /:name/:id -> Updates a specific entry in a collection if it exists
 func (s *Service) Update(collection string, id string, fields map[string]any) (map[string]any, error) {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
@@ -77,20 +93,29 @@ func (s *Service) Update(collection string, id string, fields map[string]any) (m
 	}
 	// Check if the entry exists (id) - Return early if it does not
 	// Update the item with the fields supplied to the function
-	// return nil (successfull PATCH)
+	// Return the updated item and whether there were any issues saving the DB
 	return map[string]any{}, s.DB.Save()
 }
 
-// DELETE /:name/:id
+// DELETE /:name/:id -> Deletes a specific entry within a collection if it exists
 func (s *Service) Delete(collection string, id string) error {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return errors.New("Entry not found")
+		return errors.New("Entry not found - Collection doesn't exist")
 	}
 	// check if the entry exists (id) - Return early if it does not
+	items := s.DB.Data[collection]
+
+	_, index := s.findByID(collection, id)
+
+	if index == -1 {
+		return errors.New("Entry not found - Entry doesn't exist")
+	}
 	// Delete the entry - Just filter it out based on the ID
-	// Return nil (Successful DELETE)
+	s.DB.Data[collection] = append(items[:index], items[index+1:]...)
+
+	// Return whether there were any errors saving the DB
 	return s.DB.Save()
 }
 
@@ -104,12 +129,16 @@ func (s *Service) collectionExists(name string) bool {
 	return ok
 }
 
+// ensureCollectionExists takes in the name of a collection and checks whether it's in the database
+// Create a new collection with that name if it doesn't exist
 func (s *Service) ensureCollectionExists(name string) {
 	if _, ok := s.DB.Data[name]; !ok {
 		s.DB.Data[name] = []map[string]any{}
 	}
 }
 
+// findByID takes in a name of a collection and the ID for the wanted entry.
+// Returns that item if it exists and the index of it. Otherwise return nil and -1
 func (s *Service) findByID(collection string, id string) (map[string]any, int) {
 	items, ok := s.DB.Data[collection]
 	if !ok {
@@ -131,4 +160,47 @@ func normalizeInput(input string) string {
 	normalizedInput = strings.ToLower(normalizedInput)
 
 	return normalizedInput
+}
+
+// applyFilters takes in a collection of items and filters to apply.
+// Returns a collection of items with filters applied. 
+func applyFilters(items []map[string]any, filters map[string]string) []map[string]any {
+	// early return if there are no filters to apply
+	if len(filters) == 0 {
+		return items
+	}
+
+	result := make([]map[string]any, 0, len(items))
+
+	for _, item := range items {
+		match := true
+
+		for key, value := range filters {
+			if fmt.Sprint(item[key]) != value {
+				match = false
+				break
+			}
+		}
+		if match {
+			result = append(result, item)
+		}
+	}
+
+	return result
+}
+
+// generateID takes in a collection of Items, checks the IDs already present and gets highest number
+// Returns the highest number + 1. Simple incrementing ID.
+func generateID(items []map[string]any) string {
+	max := 0
+
+	// Items could have been deleted, leaving a potential void -> Can't utilize just len()
+	for _, item := range items {
+		idString := fmt.Sprint(item["id"])
+		id, _ := strconv.Atoi(idString)
+		if id > max {
+			max = id
+		}
+	}
+	return strconv.Itoa(max + 1)
 }
