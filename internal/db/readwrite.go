@@ -48,6 +48,11 @@ func Load[T any](file string) (*DB[T], error){
 
 func (db *DB[T]) Save() error {
 	// Marshal db.Data
+	jsonData, err := json.MarshalIndent(db.Data, "", "  ")
+	if err != nil {
+		return err
+	}
 	// write to db.Path
 	// Return error or nil
+	return os.WriteFile(db.Path, jsonData, 0644)
 }
