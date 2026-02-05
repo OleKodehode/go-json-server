@@ -26,7 +26,7 @@ func (s *Service) GetAll(collection string, filters map[string]string) []map[str
 	if !s.collectionExists(collection) {
 		return []map[string]any{}
 	}
-	// Check if there are any filters - Apply
+	
 	items := s.DB.Data[collection]
 	items = applyFilters(items, filters)
 
