@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/OleKodehode/go-json-server/internal/app"
+	"github.com/OleKodehode/go-json-server/internal/db"
+	"github.com/OleKodehode/go-json-server/internal/model"
 )
 
 func main() {
@@ -21,6 +23,11 @@ func main() {
 	host := os.Getenv("HOST")
 	if host == "" { // dev env
 		host = "localhost"
+	}
+
+	_, err := db.Load[model.Data]("db")
+	if err != nil {
+		logger.Error("Failure to load DB - ", "Database Error: ", err)
 	}
 
 	router := app.NewRouter()
