@@ -94,7 +94,7 @@ Didn't have time to implement a couple of endpoints;
 | PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
 
-Another improvement at the top of my head would be to make it so put can actually create a new entry (or collection), as I put in an early return check.
+Another improvement at the top of my head would be to make it so `PUT` can actually create a new entry (or collection), as I put in an early return check.
 
 If you want to utilize this in a real setting (server, cloud, docker etc) you probably want to modify it a fair bit. But it should be a fine starting point.
 
