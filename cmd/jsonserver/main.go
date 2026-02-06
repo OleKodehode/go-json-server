@@ -37,7 +37,7 @@ func main() {
 	router := app.NewRouter(serviceLayer)
 
 	logger.Info("Server starting", "port", port)
-	fmt.Printf("http://%s:%s/health", host, port) // convenience log
+	fmt.Printf("http://%s:%s/", host, port) // convenience log
 	if err := http.ListenAndServe(":"+port, router); err != nil {
 		logger.Error("Server failed to start", "error", err)
 		os.Exit(1)
