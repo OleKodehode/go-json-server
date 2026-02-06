@@ -85,6 +85,19 @@ go-json-server/
     └── db.json (auto-created)
 ```
 
+## Future improvements
+
+Didn't have time to implement a couple of endpoints;
+
+| Method | Path          | Description                                                 |
+| ------ | ------------- | ----------------------------------------------------------- |
+| PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
+| PATCH  | /{collection} | Endpoint to update an entire collection at once             |
+
+Another improvement at the top of my head would be to make it so put can actually create a new entry (or collection), as I put in an early return check.
+
+If you want to utilize this in a real setting (server, cloud, docker etc) you probably want to modify it a fair bit. But it should be a fine starting point.
+
 ## Credits
 
 - Original Concept and API design by [`Typicode`](https://github.com/typicode)
