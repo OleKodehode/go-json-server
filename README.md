@@ -1,9 +1,9 @@
 # GO JSON Server
 
 A lightweight and Dependency-free Fake JSON API Server implemented in Go.
-Converted into Go and inspired by the original [`JSON-Server`](https://github.com/typicode/json-server).
+Converted into Go and inspired by the original [`JSON-Server`](https://github.com/typicode/json-server) by **Typicode**.
 
-This project was built as a learning exercise during my stay at **Kodehode**
+This project was built as a small learning project during my stay at **Kodehode**
 
 ## Features
 
@@ -24,7 +24,7 @@ Clone or Fork the repo. No need to install anything else - Just Build and run:
 go run ./cmd/jsonserver
 ```
 
-The server will start with a default empty JSON database at `data/db.json`
+The server will start with a default empty JSON database at `data/db.json`.
 If the file or directory doesn't exist, the code will do it for you.
 
 ---
@@ -96,6 +96,8 @@ Didn't have time to implement a couple of endpoints;
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
 
 Another improvement at the top of my head would be to make it so `PUT` can actually create a new entry (or collection), as I put in an early return check.
+
+Dynamic population of the server's current collections (and total amount of entries)
 
 If you want to utilize this in a real setting (server, cloud, docker etc) you probably want to modify it a fair bit. But it should be a fine starting point.
 
