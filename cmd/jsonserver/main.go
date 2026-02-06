@@ -9,6 +9,7 @@ import (
 	"github.com/OleKodehode/go-json-server/internal/app"
 	"github.com/OleKodehode/go-json-server/internal/db"
 	"github.com/OleKodehode/go-json-server/internal/model"
+	"github.com/OleKodehode/go-json-server/internal/service"
 )
 
 func main() {
@@ -25,12 +26,15 @@ func main() {
 		host = "localhost"
 	}
 
-	_, err := db.Load[model.Data]("db")
+	db, err := db.Load[model.Data]("db")
 	if err != nil {
 		logger.Error("Failure to load DB - ", "Database Error: ", err)
+		os.Exit(1)
 	}
 
-	router := app.NewRouter()
+	serviceLayer := service.New(db)
+
+	router := app.NewRouter(serviceLayer)
 
 	logger.Info("Server starting", "port", port)
 	fmt.Printf("http://%s:%s/health", host, port) // convenience log

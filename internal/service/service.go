@@ -38,13 +38,13 @@ func (s *Service) GetByID(collection string, id string) map[string]any {
 	collection = normalizeInput(collection)
 
 	if !s.collectionExists(collection) {
-		return map[string]any{}
+		return nil
 	}
 
 	entry, i := s.findByID(collection, id)
 
 	if i == -1 {
-		return map[string]any{}
+		return nil
 	}
 	return entry
 }
@@ -79,9 +79,12 @@ func (s *Service) Replace(collection string, id string, item map[string]any) (ma
 	if index == -1 {
 		return nil, errors.New("Entry not found - Entry doesn't exist")
 	}
-	// Replace the entry with the new item
+	
+	item["id"] = id
+
+	s.DB.Data[collection][index] = item
 	// Return the updated/created item and whether there were any issues saving the DB
-	return map[string]any{}, s.DB.Save()
+	return item, s.DB.Save()
 }
 
 // PATCH /:name/:id -> Updates a specific entry in a collection if it exists
@@ -89,12 +92,24 @@ func (s *Service) Update(collection string, id string, fields map[string]any) (m
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return nil, errors.New("Entry not found")
+		return nil, errors.New("Entry not found - Collection doesn't exist")
 	}
 	// Check if the entry exists (id) - Return early if it does not
+	item, index := s.findByID(collection, id)
+	if index == -1 {
+		return nil, errors.New("Entry not found - Entry doesn't exist")
+	}
 	// Update the item with the fields supplied to the function
+	for key, value := range fields {
+		if key == "id" {
+			continue
+		}
+		item[key] = value
+	}
+
+	s.DB.Data[collection][index] = item
 	// Return the updated item and whether there were any issues saving the DB
-	return map[string]any{}, s.DB.Save()
+	return item, s.DB.Save()
 }
 
 // DELETE /:name/:id -> Deletes a specific entry within a collection if it exists
@@ -197,7 +212,11 @@ func generateID(items []map[string]any) string {
 	// Items could have been deleted, leaving a potential void -> Can't utilize just len()
 	for _, item := range items {
 		idString := fmt.Sprint(item["id"])
-		id, _ := strconv.Atoi(idString)
+		id, err := strconv.Atoi(idString)
+		if err != nil {
+			continue
+		}
+		
 		if id > max {
 			max = id
 		}

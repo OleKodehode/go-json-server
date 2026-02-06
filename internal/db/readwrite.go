@@ -15,6 +15,12 @@ func Load[T any](file string) (*DB[T], error){
 	// Check if the file exists
 	path := filepath.Join("data", file + ".json")
 
+	// making sure the directory exists
+	// 0755 for owner r/w/e, group r/e, others r/e
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return nil, err
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil { 
 		if os.IsNotExist(err) {
