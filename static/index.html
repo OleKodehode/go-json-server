@@ -23,7 +23,7 @@
       }
       h1,
       h2 {
-        margin-top: 1.5em;
+        margin-top: 1em;
       }
       code {
         background: var(--bg-panel);
@@ -60,14 +60,14 @@
     <h1>GO JSON Server</h1>
 
     <p>
-      A lightweight fake JSON API server implemented in Go(lang). Inspired and
+      A lightweight fake JSON API server implemented in GO. Inspired and
       converted to Go from the original;
-      <a href="https://github.com/typicode/json-server" target="_blank"
-        >json-server</a
-      >
-      by typicode. Created as a small learning project during my time at
-      <strong><em>Kodehode</em></strong
-      >, a web developer course in Norway.
+      <strong><a href="https://github.com/typicode/json-server" target="_blank"
+        >JSON-server</a
+      ></strong>
+      by <a href="https://github.com/typicode" target="_blank">Typicode</a>. Created as a small learning project during my time at
+      <em><strong><a href="https://www.kodehode.no" target="_blank">Kodehode</a></em
+      ></strong>, a web developer course in Norway.
     </p>
     <p>
       Made with no external dependencies - No need to install anything if you
@@ -98,6 +98,18 @@
       </li>
     </ul>
 
+    <p>Only missing a couple of endpoints compared to the original;</p>
+    <ul>
+      <li>
+        <code>PUT /{collection}</code> - The endpoint to change (or create) an
+        entire collection at once
+      </li>
+      <li>
+        <code>PATCH /{collection}</code> - The endpoint to update an entire
+        collection at once
+      </li>
+    </ul>
+
     <p>
       Health Check: <code>GET /Health</code> (Only really relevant if hosted
       somewhere)
@@ -119,7 +131,7 @@
 
     <div class="footer">
       <p>
-        Built with Go(lang). Built as a learning experience - Feel free to
+        Built with GO. Built as a learning experience - Feel free to
         experiment and modify it to your liking.
       </p>
     </div>
