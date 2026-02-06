@@ -66,21 +66,22 @@ Preflight(`OPTIONS`) requests are handled automatically.
 go-json-server/
 ├── cmd/
 │   └── jsonserver/
-│       └── main.go
+│       └── main.go - Start point of the server
 ├── internal/
 │   ├── app/
-│   │   ├── router.go
-│   │   ├── handlers.go
-│   │   ├── middleware.go
-│   │   └── health.go
+│   │   ├── router.go - Handling routing for all endpoints
+│   │   ├── handlers.go - CRUD endpoints
+│   │   ├── logging.go - Logging middleware
+│   │   ├── cors.go - Cors middleware
+│   │   └── health.go - Simple handler for the health endpoint
 │   ├── db/
-│   │   └── readwrite.go
+│   │   └── readwrite.go - Database load/save
 │   ├── model/
-│   │   └── data.go
+│   │   └── data.go - Data struct
 │   └── service/
-│       └── service.go
+│       └── service.go - Service layer, contains all the logic
 ├── static/
-│   └── index.html
+│   └── index.html - Simple HTML page for root
 └── data/
     └── db.json (auto-created)
 ```
