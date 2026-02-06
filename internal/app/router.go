@@ -14,6 +14,11 @@ func NewRouter(s *service.Service) http.Handler {
 	// health check
 	mux.HandleFunc("GET /health", HandleHealth)
 
+	// Serve the same index.html file that the original used. No need for a handler
+	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/index.html")
+	})
+
 	// GET collections or entries
 	mux.HandleFunc("GET /{name}", h.GetAll)
 	mux.HandleFunc("GET /{name}/{id}", h.GetByID)

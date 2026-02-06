@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Go JSON Server</title>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --bg-panel: #161b22;
+        --text: #c9d1d9;
+        --text-muted: #8b949e;
+        --accent: #58a6ff;
+        --border: #30363d;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+        line-height: 1.5;
+        background: var(--bg);
+        color: var(--text);
+      }
+      h1,
+      h2 {
+        margin-top: 1.5em;
+      }
+      code {
+        background: var(--bg-panel);
+        padding: 4px 8px;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--accent);
+      }
+      a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      ul {
+        padding-left: 20px;
+      }
+      .footer {
+        margin-top: 3em;
+        font-size: 0.9em;
+        background-color: var(--bg-panel);
+        width: 100vw;
+        color: var(--text-muted);
+        padding: 1em 0;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>GO JSON Server</h1>
+
+    <p>
+      A lightweight fake JSON API server implemented in Go(lang). Inspired and
+      converted to Go from the original;
+      <a href="https://github.com/typicode/json-server" target="_blank"
+        >json-server</a
+      >
+      by typicode. Created as a small learning project during my time at
+      <strong><em>Kodehode</em></strong
+      >, a web developer course in Norway.
+    </p>
+    <p>
+      Made with no external dependencies - No need to install anything if you
+      clone/fork the project.
+    </p>
+
+    <h2>Available Endpoints</h2>
+    <ul>
+      <li>
+        <code>GET /{collection}</code> - List all entries within a collection
+      </li>
+      <li>
+        <code>GET /{collection}/{id}</code> - Get a single entry within a
+        collection
+      </li>
+      <li><code>POST /{collection}</code> - Create a new collection</li>
+      <li>
+        <code>PUT /{collection}/{id}</code> - Replace (or create) an entry
+        within a collection
+      </li>
+      <li>
+        <code>PATCH /{collection}/{id}</code> - Update an entry within a
+        collection
+      </li>
+      <li>
+        <code>DELETE /{collection}/{id}</code> - Delete an entry within a
+        collection
+      </li>
+    </ul>
+
+    <p>
+      Health Check: <code>GET /Health</code> (Only really relevant if hosted
+      somewhere)
+    </p>
+
+    <h2>Project Links</h2>
+    <ul>
+      <li>
+        <a href="https://github.com/typicode/json-server" target="_blank"
+          >Original TS JSON-Server Repo By Typicode</a
+        >
+      </li>
+      <li>
+        <a href="https://github.com/OleKodehode/go-json-server" target="_blank"
+          >Github Repo for this project</a
+        >
+      </li>
+    </ul>
+
+    <div class="footer">
+      <p>
+        Built with Go(lang). Built as a learning experience - Feel free to
+        experiment and modify it to your liking.
+      </p>
+    </div>
+  </body>
+</html>
