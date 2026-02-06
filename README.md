@@ -3,7 +3,7 @@
 A lightweight and Dependency-free Fake JSON API Server implemented in Go.
 Converted into Go and inspired by the original [`JSON-Server`](https://github.com/typicode/json-server).
 
-## This project was built as a learning exercise during my stay at **Kodehode**
+This project was built as a learning exercise during my stay at **Kodehode**
 
 ## Features
 
