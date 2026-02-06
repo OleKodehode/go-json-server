@@ -13,18 +13,19 @@ I presume adapter is the interface between the scripts and the database itself, 
 I also presume the observer is sort of like a logger - It observes and logs out what the adapter is doing to the database, which uses the lowdb npm package which is a json DB.
 It awaits a read to populate the variable with the data from the db.
 
-Once the db variable is setup, start the server throug the createapp function which takes in the db and some options.
+Once the db variable is setup, start the server through the createapp function which takes in the db and some options.
 here the function connects the db up to the server.ts script, creates a new express server/app?
+
 Set ups middleware -> using sirv to serve static files (public folder), CORS and json body parser.
 then the function sets up the different endpoints;
 
 - get- / - uses eta to serve up the index.html file with the data from the db.
 - get- /:name - Name is empty by default, but should be populated by the req.params - the endpoint itself creates a new query object, and populates the object based on req.query keys -> converting the keys into ints and checks if the number is not NaN and sends back the data based on the find function from service.ts, using the name params and the query.
 - get- /:name/:id - Finds a specific entry in the database based on the name and id passed through req.params, sending the data fetched by the findById function from service.ts
-- post- /:name - Checks if the body provided is an item suitable for the DB; If it is create an entry in the DB through the create function in service.ts
-- put- /:name - Same as above, but Updates the entry entry based on the body provided with the put method.
-- put- /:name/:id - Updates an entry with the put method based on the req.body provided.
-- patch- /:name - Partial update of an entry based on name
+- post- /:name - Checks if the body provided is an item suitable for the DB; If it is create a new collection in the DB through the create function in service.ts
+- put- /:name - Full update or creation of a collection
+- put- /:name/:id - full update or creation of an entry in a collection
+- patch- /:name - Partial update of a collection based on name
 - patch- /:name/:id - Partial update of an entry based on name and ID
 - delete- /:name/:id - Deletes a specific entry based on name and ID.
 
