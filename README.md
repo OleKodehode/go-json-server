@@ -1,3 +1,11 @@
+# Currently broken
+
+Latest commit is currently broken due to some missing code snippets. 
+Was in the process of updating it but I had to take a break due to health issues.
+
+[This](https://github.com/OleKodehode/go-json-server/tree/1f2952836e046313cab8acf1554435dbe77d1db3) should still be working however. 
+Sorry for any potential inconvenience. 
+
 # GO JSON Server
 
 A lightweight and Dependency-free Fake JSON API Server implemented in Go.
