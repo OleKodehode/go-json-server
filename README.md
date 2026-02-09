@@ -95,6 +95,8 @@ Didn't have time to implement a couple of endpoints;
 | PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
 
+Pagination
+
 Dynamic population of the server's current collections (and total amount of entries).
 
 Implement testing for the endpoints - Only tested it briefly with curl.
