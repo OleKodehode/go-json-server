@@ -3,6 +3,7 @@ package app
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/OleKodehode/go-json-server/internal/service"
 )
@@ -19,14 +20,35 @@ func NewHandler(s *service.Service) *Handler {
 // GET /:name (collection)
 func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	collection := r.PathValue("name")
+	query := r.URL.Query()
 
-	filters := map[string]string{}
-	for key, values := range r.URL.Query() {
+	params := map[string]string{}
+	for key, values := range query {
 		if len(values) > 0 {
-			filters[key] = values[0]
+			params[key] = values[0]
 		}
 	}
-	items := h.Service.GetAll(collection, filters)
+
+	paginationSort := map[string]string {
+		"_page" : params["_page"],
+		"_per_page" : params["_per_page"],
+		"_limit" : params["_limit"],
+		"_sort" : params["_sort"],
+		"_order" : params["_order"], // optional order
+		"_q" : params["_q"],	// full text search
+	}
+
+
+
+	filters := map[string]string{}
+	for key, value := range params {
+		if len(value) > 0 {
+			if !strings.HasPrefix(key, "_") {
+				filters[key] = value
+			}
+		}
+	}
+	items, total := h.Service.GetAll(collection, filters, paginationSort)
 	RespondJSON(w, http.StatusOK, items)
 }
 

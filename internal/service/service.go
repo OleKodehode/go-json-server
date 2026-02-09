@@ -26,17 +26,17 @@ func New(db *db.DB[model.Data]) *Service {
 }
 
 // GET /:name -> Returns all entries within the collection
-func (s *Service) GetAll(collection string, filters map[string]string) []map[string]any {
+func (s *Service) GetAll(collection string, filters map[string]string, control map[string]string) ([]map[string]any, int) {
 	collection = normalizeInput(collection)
 
 	if !s.collectionExists(collection) {
-		return []map[string]any{}
+		return []map[string]any{}, 0
 	}
 	
 	items := s.DB.Data[collection]
 	items = applyFilters(items, filters)
 
-	return items
+	return items, len(items)
 }
 
 // GET /:name/:id -> Returns the requsted entry within a collection if it exists
@@ -252,3 +252,4 @@ func generateID(items []map[string]any) string {
 	}
 	return strconv.Itoa(max + 1)
 }
+
