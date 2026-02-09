@@ -95,8 +95,6 @@ Didn't have time to implement a couple of endpoints;
 | PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
 
-Another improvement at the top of my head would be to make it so `PUT` can actually create a new entry (or collection), as I put in an early return check.
-
 Dynamic population of the server's current collections (and total amount of entries).
 
 Implement testing for the endpoints - Only tested it briefly with curl.

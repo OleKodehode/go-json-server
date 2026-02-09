@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -13,6 +14,11 @@ import (
 type Service struct {
 	DB *db.DB[model.Data]
 }
+
+var (
+	ErrCollectionNotFound = errors.New("Collection not found")
+	ErrEntryNotFound = errors.New("Entry not found")
+)
 
 // Creates a new instance of the Service struct with an attached Database
 func New(db *db.DB[model.Data]) *Service {
@@ -46,6 +52,7 @@ func (s *Service) GetByID(collection string, id string) map[string]any {
 	if i == -1 {
 		return nil
 	}
+
 	return entry
 }
 
@@ -62,8 +69,12 @@ func (s *Service) Create(collection string, item map[string]any) (map[string]any
 
 	s.DB.Data[collection] = append(s.DB.Data[collection], item)
 
+		if err := s.DB.Save(); err != nil {
+		return nil, err
+	}
+
 	// return the item with the added ID field and whether the DB saved successfully
-	return item, s.DB.Save()
+	return item, nil
 }
 
 // PUT /:name/:id -> Replaces (or creates) a specific entry within a collection.
@@ -71,20 +82,29 @@ func (s *Service) Replace(collection string, id string, item map[string]any) (ma
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return nil, errors.New("Entry not found - Collection doesn't exist")
+		return nil, ErrCollectionNotFound
 	}
+	
+	// Make a copy instead of the original input
+	itemCopy := maps.Clone(item)
+	// add the ID to the item itself
+	itemCopy["id"] = id
+	
 	// Check if the entry exists (id) - Return early if it does not
 	_, index := s.findByID(collection, id)
 
-	if index == -1 {
-		return nil, errors.New("Entry not found - Entry doesn't exist")
+	if index != -1 {
+		s.DB.Data[collection][index] = itemCopy
+	} else {
+		// entry didn't exist - Create it
+		s.DB.Data[collection] = append(s.DB.Data[collection], itemCopy)
 	}
 	
-	item["id"] = id
-
-	s.DB.Data[collection][index] = item
+	if err := s.DB.Save(); err != nil {
+		return nil, err
+	}
 	// Return the updated/created item and whether there were any issues saving the DB
-	return item, s.DB.Save()
+	return itemCopy, nil
 }
 
 // PATCH /:name/:id -> Updates a specific entry in a collection if it exists
@@ -92,24 +112,30 @@ func (s *Service) Update(collection string, id string, fields map[string]any) (m
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return nil, errors.New("Entry not found - Collection doesn't exist")
+		return nil, ErrCollectionNotFound
 	}
 	// Check if the entry exists (id) - Return early if it does not
 	item, index := s.findByID(collection, id)
 	if index == -1 {
-		return nil, errors.New("Entry not found - Entry doesn't exist")
+		return nil, ErrEntryNotFound
 	}
+	itemCopy := maps.Clone(item)
 	// Update the item with the fields supplied to the function
 	for key, value := range fields {
 		if key == "id" {
 			continue
 		}
-		item[key] = value
+		itemCopy[key] = value
 	}
 
-	s.DB.Data[collection][index] = item
+	s.DB.Data[collection][index] = itemCopy
+
+	if err := s.DB.Save(); err != nil {
+		return nil, err
+	}
+
 	// Return the updated item and whether there were any issues saving the DB
-	return item, s.DB.Save()
+	return itemCopy, nil
 }
 
 // DELETE /:name/:id -> Deletes a specific entry within a collection if it exists
@@ -117,7 +143,7 @@ func (s *Service) Delete(collection string, id string) error {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
 	if !s.collectionExists(collection) {
-		return errors.New("Entry not found - Collection doesn't exist")
+		return ErrCollectionNotFound
 	}
 	// check if the entry exists (id) - Return early if it does not
 	items := s.DB.Data[collection]
@@ -125,13 +151,16 @@ func (s *Service) Delete(collection string, id string) error {
 	_, index := s.findByID(collection, id)
 
 	if index == -1 {
-		return errors.New("Entry not found - Entry doesn't exist")
+		return ErrEntryNotFound
 	}
 	// Delete the entry - Just filter it out based on the ID
 	s.DB.Data[collection] = append(items[:index], items[index+1:]...)
 
-	// Return whether there were any errors saving the DB
-	return s.DB.Save()
+	if err := s.DB.Save(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Might need some helper functions?
