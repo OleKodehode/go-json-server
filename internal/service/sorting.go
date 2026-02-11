@@ -7,16 +7,20 @@ import (
 )
 
 // sortItems sorts the slice by a single field (asc by defautl, desc if _order=desc)
-func sortItems(items []map[string]any, field string, order string) []map[string]any {
-	desc := strings.ToLower(order) == "desc" || strings.HasPrefix(field, "-")
+func sortItems(items []map[string]any, sortStr string, order string) []map[string]any {
 
-	// Remove leading "-" if present
-	if strings.HasPrefix(field, "-") {
-		field = field[1:]
-		desc = true
+	if sortStr == "" {
+		return items
 	}
 
+	fields := strings.Split(sortStr, ",")
+
 	sort.SliceStable(items, func(i, j int) bool {
+		for _, field := range fields {
+			field := strings.TrimSpace(field)
+			desc := strings.HasPrefix(field, "-") || strings.ToLower(order) == "desc"
+			field = strings.TrimPrefix(field, "-")
+
 		a := items[i][field]
 		b := items[j][field]
 
@@ -24,17 +28,30 @@ func sortItems(items []map[string]any, field string, order string) []map[string]
 		aNumb, aErr := toFloat64(a)
 		bNumb, bErr := toFloat64(b)
 
-		if aErr != nil && bErr != nil {
-			if desc { return aNumb > bNumb}
+		if aErr == nil && bErr == nil {
+			// check if the numbers are the same
+			if aNumb == bNumb { continue }
+
+			if desc {
+				return aNumb > bNumb
+			}
 			return aNumb < bNumb
 		}
 		// Fallback to string
 
 		aStr := fmt.Sprint(a)
 		bStr := fmt.Sprint(b)
-		if desc { return aStr > bStr}
+		// check if the strings are the same
+		if aStr == bStr { continue }
+
+		if desc {
+			return aStr > bStr
+		} 
+		
 		return aStr < bStr
-	})
+	}
+	return false // stable if all equal
+})
 
 	return items
 }

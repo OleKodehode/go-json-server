@@ -18,7 +18,7 @@ var Comparisons = map[string]Comparator {
 	},
 	"contains": func(iv any, fv string) bool {
 		s := fmt.Sprint(iv)
-		return strings.Contains(s, fv)
+		return strings.Contains(strings.ToLower(s), strings.ToLower(fv))
 	},
 	"gte": func(iv any, fv string) bool {
 		inputNum, filterNum, invalid := numbConvert(iv,fv)
