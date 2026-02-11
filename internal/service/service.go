@@ -24,7 +24,7 @@ func New(db *db.DB[model.Data]) *Service {
 }
 
 // GET /:name -> Returns all entries within the collection
-func (s *Service) GetAll(collection string, filters map[string]string, control map[string]string) ([]map[string]any, int) {
+func (s *Service) GetAll(collection string, filters map[string]string, controls map[string]string) ([]map[string]any, int) {
 	collection = normalizeInput(collection)
 
 	if !s.collectionExists(collection) {
@@ -33,8 +33,8 @@ func (s *Service) GetAll(collection string, filters map[string]string, control m
 	
 	items := s.DB.Data[collection]
 	items = applyFilters(items, filters)
-	if sortField, ok := control["_sort"]; ok && sortField != "" {
-		items = sortItems(items, sortField, control["_order"])
+	if sortField, ok := controls["_sort"]; ok && sortField != "" {
+		items = sortItems(items, sortField)
 	}
 
 	total := len(items)
@@ -43,7 +43,7 @@ func (s *Service) GetAll(collection string, filters map[string]string, control m
 	page := 1
 	perPage := 10 // 10 by default if not supplied
 
-	if reqPage, ok := control["_page"]; ok && reqPage != "" {
+	if reqPage, ok := controls["_page"]; ok && reqPage != "" {
 		// Check if the request's page is larger than 1
 		if n, err := strconv.Atoi(reqPage); err == nil && n >= 1 {
 			page = n
@@ -51,11 +51,11 @@ func (s *Service) GetAll(collection string, filters map[string]string, control m
 	}
 
 	// check if request has a per page and if it's greater than 0
-	if reqPerPage, ok := control["_per_page"]; ok && reqPerPage != "" {
+	if reqPerPage, ok := controls["_per_page"]; ok && reqPerPage != "" {
 		if n, err := strconv.Atoi(reqPerPage); err == nil && n > 0 {
 			perPage = n
 		}
-	} else if limit, ok := control["_limit"]; ok && limit != "" {
+	} else if limit, ok := controls["_limit"]; ok && limit != "" {
 		// Legacy Fallback
 		if n, err := strconv.Atoi(limit); err == nil && n > 0 {
 			perPage = n

@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// sortItems sorts the slice by a single field (asc by defautl, desc if _order=desc)
-func sortItems(items []map[string]any, sortStr string, order string) []map[string]any {
+// sortItems sorts the slice by a single field (asc by default, "-" prefix for desc)
+func sortItems(items []map[string]any, sortStr string) []map[string]any {
 
 	if sortStr == "" {
 		return items
@@ -18,7 +18,7 @@ func sortItems(items []map[string]any, sortStr string, order string) []map[strin
 	sort.SliceStable(items, func(i, j int) bool {
 		for _, field := range fields {
 			field := strings.TrimSpace(field)
-			desc := strings.HasPrefix(field, "-") || strings.ToLower(order) == "desc"
+			desc := strings.HasPrefix(field, "-")
 			field = strings.TrimPrefix(field, "-")
 
 		a := items[i][field]
@@ -47,7 +47,7 @@ func sortItems(items []map[string]any, sortStr string, order string) []map[strin
 		if desc {
 			return aStr > bStr
 		} 
-		
+
 		return aStr < bStr
 	}
 	return false // stable if all equal

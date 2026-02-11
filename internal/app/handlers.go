@@ -29,12 +29,11 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	paginationSort := map[string]string {
+	controls := map[string]string {
 		"_page" : params["_page"],
 		"_per_page" : params["_per_page"],
 		"_limit" : params["_limit"],
 		"_sort" : params["_sort"],
-		"_order" : params["_order"], // optional order
 		"_q" : params["_q"],	// full text search
 	}
 
@@ -42,13 +41,11 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 
 	filters := map[string]string{}
 	for key, value := range params {
-		if len(value) > 0 {
-			if !strings.HasPrefix(key, "_") {
+			if value != "" && !strings.HasPrefix(key, "_") {
 				filters[key] = value
 			}
-		}
 	}
-	items, total := h.Service.GetAll(collection, filters, paginationSort)
+	items, total := h.Service.GetAll(collection, filters, controls)
 	totalHeader(w, total)
 	RespondJSON(w, http.StatusOK, items)
 }
