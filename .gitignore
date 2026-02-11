@@ -1,1 +1,3 @@
+# Ignore binaries and generated filess
+*.exe
 db.json

@@ -1,11 +1,3 @@
-# Currently broken
-
-Latest commit is currently broken due to some missing code snippets. 
-Was in the process of updating it but I had to take a break due to health issues.
-
-[This](https://github.com/OleKodehode/go-json-server/tree/1f2952836e046313cab8acf1554435dbe77d1db3) should still be working however. 
-Sorry for any potential inconvenience. 
-
 # GO JSON Server
 
 A lightweight and Dependency-free Fake JSON API Server implemented in Go.
@@ -77,33 +69,39 @@ go-json-server/
 │       └── main.go - Start point of the server
 ├── internal/
 │   ├── app/
-│   │   ├── router.go - Handling routing for all endpoints
-│   │   ├── handlers.go - CRUD endpoints
-│   │   ├── logging.go - Logging middleware
 │   │   ├── cors.go - Cors middleware
-│   │   └── health.go - Simple handler for the health endpoint
+│   │   ├── health.go - Simple handler for the health endpoint
+│   │   ├── handlers.go - CRUD endpoints
+│   │   ├── helpers.go - Helper functions for responses (RespondJSON, totalHeader etc)
+│   │   ├── logging.go - Logging middleware
+│   │   └── router.go - Handling routing for all endpoints
 │   ├── db/
 │   │   └── readwrite.go - Database load/save
 │   ├── model/
 │   │   └── data.go - Data struct
 │   └── service/
-│       └── service.go - Service layer, contains all the logic
+│       ├── comparison.go - Script to get the comparators (eq, gte, lte etc)
+│       ├── filters.go - Filter logic
+│       ├── helpers.go - helper functions tied to the service layer
+│       ├── service.go - Core script of the package - CRUD methods
+│       └── sorting.go - Sorting logic
 ├── static/
 │   └── index.html - Simple HTML page for root
-└── data/
-    └── db.json (auto-created)
+├── data/
+│   └── db.json (auto-created)
+├── .gitignore - only db.json
+├── go.mod
+└── README.md
 ```
 
 ## Future improvements
 
-Didn't have time to implement a couple of endpoints;
+You could implement a couple of collection-wide updates:
 
 | Method | Path          | Description                                                 |
 | ------ | ------------- | ----------------------------------------------------------- |
 | PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
-
-Pagination
 
 Dynamic population of the server's current collections (and total amount of entries).
 
