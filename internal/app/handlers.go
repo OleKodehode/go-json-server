@@ -37,8 +37,6 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 		"_q" : params["_q"],	// full text search
 	}
 
-
-
 	filters := map[string]string{}
 	for key, value := range params {
 			if value != "" && !strings.HasPrefix(key, "_") {
