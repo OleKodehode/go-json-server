@@ -3,16 +3,16 @@
 A lightweight and Dependency-free Fake JSON API Server implemented in Go.
 Converted into Go and inspired by the original [`JSON-Server`](https://github.com/typicode/json-server) by **Typicode**.
 
-This project was built as a small learning project during my stay at **Kodehode**
+This project was built as a small learning project during my stay at [**Kodehode**](https://www.kodehode.no)
 
 ## Features
 
 - **Zero External dependencies** - Only utilizing the GO standard Library
-- **Automatic JSON DB creation** - No need to make any directories or files, automatically creates a json file in (`data/db.json`)
-- **Dynamic Collections** - (Created on first POST request to that collection's name)
 - **Full CRUD API**
+- **Dynamic Collections** - (Created on first POST request to that collection's name)
 - **Middleware** - Logging & CORS
 - **CORS Support** (simple, permissive, json-server style)
+- **Automatic JSON DB creation** - No need to make any directories or files, automatically creates a json file in (`data/db.json`)
 
 ---
 
@@ -55,6 +55,7 @@ CORS is enabled by default with permissive settings:
 - `Access-Control-Allow-Origin: *`
 - `Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS`
 - `Access-Control-Allow-Headers: Content-Type`
+- `Access-Control-Expose-Headers: X-Total-Count`
 
 Preflight(`OPTIONS`) requests are handled automatically.
 
@@ -94,16 +95,16 @@ go-json-server/
 └── README.md
 ```
 
-## Future improvements
+## Potential Improvements
 
-You could implement a couple of collection-wide updates:
+You could implement a couple of collection-wide update endpoints:
 
 | Method | Path          | Description                                                 |
 | ------ | ------------- | ----------------------------------------------------------- |
 | PUT    | /{collection} | Endpoint to Change (or create) an entire collection at once |
 | PATCH  | /{collection} | Endpoint to update an entire collection at once             |
 
-Dynamic population of the server's current collections (and total amount of entries).
+Dynamic population of the server's current collections (and total amount of entries) in the HTML file.
 
 Implement testing for the endpoints - Only tested it briefly with curl.
 
