@@ -2,10 +2,8 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"maps"
 	"strconv"
-	"strings"
 
 	"github.com/OleKodehode/go-json-server/internal/db"
 	"github.com/OleKodehode/go-json-server/internal/model"
@@ -35,8 +33,47 @@ func (s *Service) GetAll(collection string, filters map[string]string, control m
 	
 	items := s.DB.Data[collection]
 	items = applyFilters(items, filters)
+	if sortField, ok := control["_sort"]; ok && sortField != "" {
+		items = sortItems(items, sortField, control["_order"])
+	}
 
-	return items, len(items)
+	total := len(items)
+
+	// Pagination
+	page := 1
+	perPage := 10 // 10 by default if not supplied
+
+	if reqPage, ok := control["_page"]; ok && reqPage != "" {
+		// Check if the request's page is larger than 1
+		if n, err := strconv.Atoi(reqPage); err == nil && n >= 1 {
+			page = n
+		}
+	}
+
+	// check if request has a per page and if it's greater than 0
+	if reqPerPage, ok := control["_per_page"]; ok && reqPerPage != "" {
+		if n, err := strconv.Atoi(reqPerPage); err == nil && n > 0 {
+			perPage = n
+		}
+	} else if limit, ok := control["_limit"]; ok && limit != "" {
+		// Legacy Fallback
+		if n, err := strconv.Atoi(limit); err == nil && n > 0 {
+			perPage = n
+		}
+	}
+
+	start := (page - 1) * perPage
+	if start >= total {
+		// return nothing, as the start can't be above the total either way.
+		return []map[string]any{}, total
+	}
+
+	end := start + perPage
+	if end > total {
+		end = total
+	}
+
+	return items[start:end], total
 }
 
 // GET /:name/:id -> Returns the requsted entry within a collection if it exists
@@ -162,94 +199,3 @@ func (s *Service) Delete(collection string, id string) error {
 
 	return nil
 }
-
-// Might need some helper functions?
-// Need query filtering
-
-// collectionExists takes in a name of the collection and checks whether it exists
-func (s *Service) collectionExists(name string) bool {
-	_, ok := s.DB.Data[name]
-
-	return ok
-}
-
-// ensureCollectionExists takes in the name of a collection and checks whether it's in the database
-// Create a new collection with that name if it doesn't exist
-func (s *Service) ensureCollectionExists(name string) {
-	if _, ok := s.DB.Data[name]; !ok {
-		s.DB.Data[name] = []map[string]any{}
-	}
-}
-
-// findByID takes in a name of a collection and the ID for the wanted entry.
-// Returns that item if it exists and the index of it. Otherwise return nil and -1
-func (s *Service) findByID(collection string, id string) (map[string]any, int) {
-	items, ok := s.DB.Data[collection]
-	if !ok {
-		return nil, -1
-	}
-
-	for i, item := range items {
-		if fmt.Sprint(item["id"]) == id {
-			return item, i
-		}
-	}
-
-	return nil, -1
-}
-
-// normalizeInput takes in an input string and removes any white space and makes it lowercase before returning it
-func normalizeInput(input string) string {
-	normalizedInput := strings.TrimSpace(input)
-	normalizedInput = strings.ToLower(normalizedInput)
-
-	return normalizedInput
-}
-
-// applyFilters takes in a collection of items and filters to apply.
-// Returns a collection of items with filters applied. 
-func applyFilters(items []map[string]any, filters map[string]string) []map[string]any {
-	// early return if there are no filters to apply
-	if len(filters) == 0 {
-		return items
-	}
-
-	result := make([]map[string]any, 0, len(items))
-
-	for _, item := range items {
-		match := true
-
-		for key, value := range filters {
-			if fmt.Sprint(item[key]) != value {
-				match = false
-				break
-			}
-		}
-		if match {
-			result = append(result, item)
-		}
-	}
-
-	return result
-}
-
-// generateID takes in a collection of Items, checks the IDs already present and gets highest number
-// Returns the highest number + 1. Simple incrementing ID.
-func generateID(items []map[string]any) string {
-	max := 0
-
-	// Items could have been deleted, leaving a potential void -> Can't utilize just len()
-	for _, item := range items {
-		idString := fmt.Sprint(item["id"])
-		id, err := strconv.Atoi(idString)
-		if err != nil {
-			continue
-		}
-		
-		if id > max {
-			max = id
-		}
-	}
-	return strconv.Itoa(max + 1)
-}
-

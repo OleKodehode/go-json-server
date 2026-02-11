@@ -25,7 +25,7 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 	params := map[string]string{}
 	for key, values := range query {
 		if len(values) > 0 {
-			params[key] = values[0]
+			params[key] = strings.TrimSpace(values[0])
 		}
 	}
 
@@ -49,6 +49,7 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	items, total := h.Service.GetAll(collection, filters, paginationSort)
+	totalHeader(w, total)
 	RespondJSON(w, http.StatusOK, items)
 }
 
