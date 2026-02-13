@@ -34,13 +34,6 @@ func normalizeInput(input string) string {
 	return normalizedInput
 }
 
-// collectionExists takes in a name of the collection and checks whether it exists
-func (s *Service) collectionExists(name string) bool {
-	_, exists := s.DB.GetCollection(name)
-
-	return exists
-}
-
 // ensureCollectionExists takes in the name of a collection and checks whether it's in the database
 // Create a new collection with that name if it doesn't exist
 func (s *Service) ensureCollectionExists(name string) {
