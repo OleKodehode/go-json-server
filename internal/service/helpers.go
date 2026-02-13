@@ -36,26 +36,23 @@ func normalizeInput(input string) string {
 
 // collectionExists takes in a name of the collection and checks whether it exists
 func (s *Service) collectionExists(name string) bool {
-	_, ok := s.DB.Data[name]
+	_, exists := s.DB.GetCollection(name)
 
-	return ok
+	return exists
 }
 
 // ensureCollectionExists takes in the name of a collection and checks whether it's in the database
 // Create a new collection with that name if it doesn't exist
 func (s *Service) ensureCollectionExists(name string) {
-	if _, ok := s.DB.Data[name]; !ok {
-		s.DB.Data[name] = []map[string]any{}
+	if items, ok := s.DB.GetCollection(name); !ok {
+		items = []map[string]any{}
+		s.DB.UpdateCollection(name, items)
 	}
 }
 
-// findByID takes in a name of a collection and the ID for the wanted entry.
+// findByID takes in a slice of items and the ID for the wanted entry.
 // Returns that item if it exists and the index of it. Otherwise return nil and -1
-func (s *Service) findByID(collection string, id string) (map[string]any, int) {
-	items, ok := s.DB.Data[collection]
-	if !ok {
-		return nil, -1
-	}
+func (s *Service) findByID(items []map[string]any, id string) (map[string]any, int) {
 
 	for i, item := range items {
 		if fmt.Sprint(item["id"]) == id {

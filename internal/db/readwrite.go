@@ -44,9 +44,7 @@ func Load[T any](file string) (*DB[T], error){
 	return &DB[T]{Path: path, Data: dbData}, nil
 }
 
-func (db *DB[T]) Save() error {
-	db.Lock()
-	defer db.Unlock()
+func (db *DB[T]) save() error {
 	// Marshal db.Data
 	jsonData, err := json.MarshalIndent(db.Data, "", "  ")
 	if err != nil {
@@ -57,12 +55,37 @@ func (db *DB[T]) Save() error {
 	return os.WriteFile(db.Path, jsonData, 0644)
 }
 
-// Lock locks the database during writes using the Mutex's Lock method
-func (db *DB[T]) Lock() { db.mu.Lock() }
-// unlock unlocks the database after writing using the Mutex's Unlock method
-func (db *DB[T]) Unlock() { db.mu.Unlock() }
+// GetCollection returns a copy of the data avilable in the DB
+func (db *DB[T]) GetCollection(name string) ([]map[string]any, bool) {
+	db.mu.RLock()
+	defer db.mu.RUnlock()
 
-// Readlock locks the database during reads using the Mutex's RLock method
-func (db *DB[T]) ReadLock() { db.mu.RLock() }
-// ReadUnlock unlocks the database after reading using the Mutex's RUnlock method
-func (db *DB[T]) ReadUnlock() { db.mu.RUnlock() }
+	data, ok := any(db.Data).(map[string][]map[string]any)
+	if !ok {
+		 	return nil, false
+	}
+
+	original, exists := data[name]
+	if !exists {
+		return nil, false
+	}
+
+	copyItems := make([]map[string]any, len(original))
+	copy(copyItems, original)
+
+	return copyItems, true
+}
+
+func (db *DB[T]) UpdateCollection(name string, items []map[string]any) error {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+
+	data, ok := any(db.Data).(map[string][]map[string]any)
+	if !ok {
+		return os.ErrInvalid
+	}
+
+	data[name] = items
+
+	return db.save()
+}

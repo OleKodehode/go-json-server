@@ -27,11 +27,11 @@ func New(db *db.DB[model.Data]) *Service {
 func (s *Service) GetAll(collection string, filters map[string]string, controls map[string]string) ([]map[string]any, int) {
 	collection = normalizeInput(collection)
 
-	if !s.collectionExists(collection) {
+	items, exists := s.DB.GetCollection(collection)
+	if !exists {
 		return []map[string]any{}, 0
 	}
 	
-	items := s.DB.Data[collection]
 	items = applyFilters(items, filters)
 	if sortField, ok := controls["_sort"]; ok && sortField != "" {
 		items = sortItems(items, sortField)
@@ -80,11 +80,12 @@ func (s *Service) GetAll(collection string, filters map[string]string, controls 
 func (s *Service) GetByID(collection string, id string) map[string]any {
 	collection = normalizeInput(collection)
 
-	if !s.collectionExists(collection) {
+	items, exists := s.DB.GetCollection(collection)
+	if !exists {
 		return nil
 	}
 
-	entry, i := s.findByID(collection, id)
+	entry, i := s.findByID(items, id)
 
 	if i == -1 {
 		return nil
@@ -99,14 +100,20 @@ func (s *Service) Create(collection string, item map[string]any) (map[string]any
 
 	// checks if the collection exists and creates it if it doesn't exist
 	s.ensureCollectionExists(collection)
+
+	// get copy of the DB
+	items, exists := s.DB.GetCollection(collection)
+	if !exists { // This shouldn't trigger
+		return nil, ErrCollectionNotFound 
+	}
 	// add the item to the collection
 	if _, ok := item["id"]; !ok {
-		item["id"] = generateID(s.DB.Data[collection])
+		item["id"] = generateID(items)
 	}
 
-	s.DB.Data[collection] = append(s.DB.Data[collection], item)
+	items = append(items, item)
 
-		if err := s.DB.Save(); err != nil {
+		if err := s.DB.UpdateCollection(collection, items); err != nil {
 		return nil, err
 	}
 
@@ -118,7 +125,8 @@ func (s *Service) Create(collection string, item map[string]any) (map[string]any
 func (s *Service) Replace(collection string, id string, item map[string]any) (map[string]any, error) {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
-	if !s.collectionExists(collection) {
+	items, exists := s.DB.GetCollection(collection)
+	if !exists {
 		return nil, ErrCollectionNotFound
 	}
 	
@@ -128,16 +136,16 @@ func (s *Service) Replace(collection string, id string, item map[string]any) (ma
 	itemCopy["id"] = id
 	
 	// Check if the entry exists (id) - Return early if it does not
-	_, index := s.findByID(collection, id)
+	_, index := s.findByID(items, id)
 
 	if index != -1 {
-		s.DB.Data[collection][index] = itemCopy
+		items[index] = itemCopy
 	} else {
 		// entry didn't exist - Create it
-		s.DB.Data[collection] = append(s.DB.Data[collection], itemCopy)
+		items = append(items, itemCopy)
 	}
 	
-	if err := s.DB.Save(); err != nil {
+	if err := s.DB.UpdateCollection(collection, items); err != nil {
 		return nil, err
 	}
 	// Return the updated/created item and whether there were any issues saving the DB
@@ -148,11 +156,12 @@ func (s *Service) Replace(collection string, id string, item map[string]any) (ma
 func (s *Service) Update(collection string, id string, fields map[string]any) (map[string]any, error) {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
-	if !s.collectionExists(collection) {
+	items, exists := s.DB.GetCollection(collection)
+	if !exists {
 		return nil, ErrCollectionNotFound
 	}
 	// Check if the entry exists (id) - Return early if it does not
-	item, index := s.findByID(collection, id)
+	item, index := s.findByID(items, id)
 	if index == -1 {
 		return nil, ErrEntryNotFound
 	}
@@ -165,9 +174,9 @@ func (s *Service) Update(collection string, id string, fields map[string]any) (m
 		itemCopy[key] = value
 	}
 
-	s.DB.Data[collection][index] = itemCopy
+	items[index] = itemCopy
 
-	if err := s.DB.Save(); err != nil {
+	if err := s.DB.UpdateCollection(collection, items); err != nil {
 		return nil, err
 	}
 
@@ -179,21 +188,22 @@ func (s *Service) Update(collection string, id string, fields map[string]any) (m
 func (s *Service) Delete(collection string, id string) error {
 	collection = normalizeInput(collection)
 	// Check if the collection exists - Return early if it does not
-	if !s.collectionExists(collection) {
+	items, exists := s.DB.GetCollection(collection)
+	if !exists {
 		return ErrCollectionNotFound
 	}
 	// check if the entry exists (id) - Return early if it does not
-	items := s.DB.Data[collection]
 
-	_, index := s.findByID(collection, id)
+
+	_, index := s.findByID(items, id)
 
 	if index == -1 {
 		return ErrEntryNotFound
 	}
 	// Delete the entry - Just filter it out based on the ID
-	s.DB.Data[collection] = append(items[:index], items[index+1:]...)
+	items = append(items[:index], items[index+1:]...)
 
-	if err := s.DB.Save(); err != nil {
+	if err := s.DB.UpdateCollection(collection, items); err != nil {
 		return err
 	}
 
