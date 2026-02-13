@@ -31,14 +31,14 @@ If the file or directory doesn't exist, the code will do it for you.
 
 ## API Endpoints
 
-| Method | Path               | Description                                         |
-| ------ | ------------------ | --------------------------------------------------- |
-| GET    | /{collection}      | Lists all entries in a collection                   |
-| GET    | /{collection}/{id} | Get a single entry within a collection              |
-| POST   | /{collection}      | Create a new entry (and collection if it's missing) |
-| PUT    | /{collection}/{id} | Replace an entry                                    |
-| PATCH  | /{collection}/{id} | Update an entry                                     |
-| DELETE | /{collection}/{id} | Delete an entry                                     |
+| Method | Path               | Description                                                                             |
+| ------ | ------------------ | --------------------------------------------------------------------------------------- |
+| GET    | /{collection}      | Returns a paginated list of entries from that specific collection. Default: 10 per page |
+| GET    | /{collection}/{id} | Get a single entry within a collection                                                  |
+| POST   | /{collection}      | Create a new entry (and collection if it's missing)                                     |
+| PUT    | /{collection}/{id} | Replace an entry                                                                        |
+| PATCH  | /{collection}/{id} | Update an entry                                                                         |
+| DELETE | /{collection}/{id} | Delete an entry                                                                         |
 
 ### Health Check
 
