@@ -44,13 +44,13 @@ If the file or directory doesn't exist, the code will do it for you.
 
 The server supports special query parameters with the prefix `_` to control the output:
 
-|Parameter|Description|Example|
-|\_q|**Global Search**: Search within the values of all fields|`?_q=john`|
-|----|----|----|
-|\_page|**Pagination**: The page number to retrieve|`?_page=2`|
-|\_per_page|**limit**: Items per page (Default: 10)|`?_per_page=5`|
-|\_sort|**Sorting**: Field name to sort by|`?_sort=name`|
-|\_limit|**Legacy Limit**: Fallbackl for `_per_page`.|`?_limit=10`|
+| Parameter  | Description                                               | Example        |
+| ---------- | --------------------------------------------------------- | -------------- |
+| \_q        | **Global Search**: Search within the values of all fields | `?_q=john`     |
+| \_page     | **Pagination**: The page number to retrieve               | `?_page=2`     |
+| \_per_page | **limit**: Items per page (Default: 10)                   | `?_per_page=5` |
+| \_sort     | **Sorting**: Field name to sort by                        | `?_sort=name`  |
+| \_limit    | **Legacy Limit**: Fallbackl for `_per_page`.              | `?_limit=10`   |
 
 ### Health Check
 
