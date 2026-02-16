@@ -52,6 +52,10 @@ The server supports special query parameters with the prefix `_` to control the 
 | \_sort     | **Sorting**: Field name to sort by                        | `?_sort=name`  |
 | \_limit    | **Legacy Limit**: Fallbackl for `_per_page`.              | `?_limit=10`   |
 
+Any other parameter is treated as a filter (I.E `?role=admin`)
+
+---
+
 ### Health Check
 
 | Method | Path    | Description               |
