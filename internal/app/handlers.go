@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -92,7 +93,11 @@ func (h *Handler) Replace(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.Service.Replace(collection, id, body)
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
+		if errors.Is(err, service.ErrEntryNotFound) || errors.Is(err, service.ErrCollectionNotFound) {
+			RespondError(w, http.StatusNotFound, err.Error())
+		} else {
+			RespondError(w, http.StatusInternalServerError, "Internal Server Error")
+		}
 		return
 	}
 
@@ -112,7 +117,11 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.Service.Update(collection, id, body)
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
+		if errors.Is(err, service.ErrEntryNotFound) || errors.Is(err, service.ErrCollectionNotFound) {
+			RespondError(w, http.StatusNotFound, err.Error())
+		} else {
+			RespondError(w, http.StatusInternalServerError, "Internal Server Error")
+		}
 		return
 	}
 
@@ -126,7 +135,11 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err := h.Service.Delete(collection, id)
 	if err != nil {
-		RespondError(w, http.StatusInternalServerError, err.Error())
+		if errors.Is(err, service.ErrEntryNotFound) || errors.Is(err, service.ErrCollectionNotFound) {
+			RespondError(w, http.StatusNotFound, err.Error())
+		} else {
+			RespondError(w, http.StatusInternalServerError, "Internal Server Error")
+		}
 		return
 	}
 

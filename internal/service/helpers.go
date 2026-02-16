@@ -55,3 +55,28 @@ func (s *Service) findByID(items []map[string]any, id string) (map[string]any, i
 
 	return nil, -1
 }
+
+// globalSearch takes in a collection of items and a query string, and searches each item for any match to the query string
+func globalSearch(items []map[string]any, query string) []map[string]any {
+	// Return early if query is empty
+	if query == "" {
+		return items
+	}
+
+	// Normalize query
+	query = normalizeInput(query)
+	var results []map[string]any 
+
+	for _, item := range items {
+		for _, value := range item {
+			valueString := normalizeInput(fmt.Sprintf("%v", value))
+
+			if strings.Contains(valueString, query) {
+				results = append(results, item)
+				break //move onto the next item
+			}
+		}
+	}
+
+	return results
+}
