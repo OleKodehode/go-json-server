@@ -92,7 +92,7 @@ func (h *Handler) Replace(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.Service.Replace(collection, id, body)
 	if err != nil {
-		RespondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -112,7 +112,7 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 
 	item, err := h.Service.Update(collection, id, body)
 	if err != nil {
-		RespondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -126,7 +126,7 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 
 	err := h.Service.Delete(collection, id)
 	if err != nil {
-		RespondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

@@ -50,7 +50,7 @@ func validateBody (r *http.Request) (map[string]any, error) {
 	}
 
 	// Check the decode result to make sure it's not empty
-	if len(item) == 0 {
+	if item == nil {
 		return nil, fmt.Errorf("Request body can't be empty")
 	}
 
