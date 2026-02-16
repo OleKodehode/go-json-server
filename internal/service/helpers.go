@@ -69,7 +69,7 @@ func applyGlobalSearch(items []map[string]any, query string) []map[string]any {
 
 	for _, item := range items {
 		for _, value := range item {
-			valueString := normalizeInput(fmt.Sprintf("%v", value))
+			valueString := normalizeInput(fmt.Sprint(value))
 
 			if strings.Contains(valueString, query) {
 				results = append(results, item)
