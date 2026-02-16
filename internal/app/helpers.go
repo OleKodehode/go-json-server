@@ -36,7 +36,7 @@ func totalHeader(w http.ResponseWriter, total int) {
 
 // validateBody checks whether a request has a valid JSON body
 func validateBody (r *http.Request) (map[string]any, error) {
-	item := map[string]any{}
+  var item map[string]any
 
 	// Check to see if there is any body
 	if r.Body == nil {
@@ -50,7 +50,7 @@ func validateBody (r *http.Request) (map[string]any, error) {
 	}
 
 	// Check the decode result to make sure it's not empty
-	if item == nil {
+	if len(item) == 0 {
 		return nil, fmt.Errorf("Request body can't be empty")
 	}
 

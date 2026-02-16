@@ -14,7 +14,7 @@ func NewRouter(s *service.Service) http.Handler {
 	mux.HandleFunc("GET /health", HandleHealth)
 
 	// Serve the same index.html file that the original used. No need for a handler
-	mux.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "static/index.html")
 	})
 
