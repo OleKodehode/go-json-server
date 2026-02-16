@@ -32,8 +32,21 @@ func NewRouter(s *service.Service) http.Handler {
 	// Delete entries
 	mux.HandleFunc("DELETE /{name}/{id}", h.Delete)
 
-	// Alternatively, wrap cors outside to omit OPTIONS requests logging
-	return LoggingMiddleWare(CORSMiddleware(mux))
+	var handler http.Handler = mux
+
+	// Safety net
+	handler = RecoverMiddleware(handler)
+
+	// CORS
+	handler = CORSMiddleware(handler)
+
+	// Logging
+	handler = LoggingMiddleWare(handler)
+
+	// Comment out, change order or add more as needed
+
+
+	return handler
 
 }
 
