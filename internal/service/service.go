@@ -24,12 +24,12 @@ func New(db *db.DB[model.Data]) *Service {
 }
 
 // GET /:name -> Returns all entries within the collection
-func (s *Service) GetAll(collection string, filters map[string]string, controls map[string]string) ([]map[string]any, int) {
+func (s *Service) GetAll(collection string, filters map[string]string, controls map[string]string) ([]map[string]any, int, error) {
 	collection = normalizeInput(collection)
 
 	items, exists := s.DB.GetCollection(collection)
 	if !exists {
-		return []map[string]any{}, 0
+		return []map[string]any{}, 0, ErrCollectionNotFound
 	}
 	
 	items = applyFilters(items, filters)
@@ -70,7 +70,7 @@ func (s *Service) GetAll(collection string, filters map[string]string, controls 
 	start := (page - 1) * perPage
 	if start >= total {
 		// return nothing, as the start can't be above the total either way.
-		return []map[string]any{}, total
+		return []map[string]any{}, total, nil
 	}
 
 	end := start + perPage
@@ -78,25 +78,25 @@ func (s *Service) GetAll(collection string, filters map[string]string, controls 
 		end = total
 	}
 
-	return items[start:end], total
+	return items[start:end], total, nil
 }
 
 // GET /:name/:id -> Returns the requsted entry within a collection if it exists
-func (s *Service) GetByID(collection string, id string) map[string]any {
+func (s *Service) GetByID(collection string, id string) (map[string]any, error) {
 	collection = normalizeInput(collection)
 
 	items, exists := s.DB.GetCollection(collection)
 	if !exists {
-		return nil
+		return nil, ErrCollectionNotFound
 	}
 
 	entry, i := s.findByID(items, id)
 
 	if i == -1 {
-		return nil
+		return nil, ErrEntryNotFound
 	}
 
-	return entry
+	return entry, nil
 }
 
 // POST /:name -> Creates a new entry within a collection. Creates a new collection if it doesn't exist
