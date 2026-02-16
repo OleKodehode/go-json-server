@@ -43,7 +43,11 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 				filters[key] = value
 			}
 	}
-	items, total := h.Service.GetAll(collection, filters, controls)
+	items, total, err := h.Service.GetAll(collection, filters, controls)
+	if err != nil {
+		RespondError(w, http.StatusNotFound, err.Error())
+		return
+	}
 	totalHeader(w, total)
 	RespondJSON(w, http.StatusOK, items)
 }
@@ -52,9 +56,9 @@ func (h *Handler) GetAll(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 	collection := r.PathValue("name")
 	id := r.PathValue("id")
-	item := h.Service.GetByID(collection, id)
-	if item == nil {
-		RespondError(w, http.StatusNotFound, "Entry not found")
+	item, err := h.Service.GetByID(collection, id)
+	if err != nil {
+		RespondError(w, http.StatusNotFound, err.Error())
 		return
 	}
 
