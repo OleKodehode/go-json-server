@@ -1,7 +1,6 @@
 package app
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -65,12 +64,15 @@ func (h *Handler) GetByID(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 	collection := r.PathValue("name")
 
-	body := map[string]any{}
-	json.NewDecoder(r.Body).Decode(&body)
+	body, err := validateBody(r)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	item, err := h.Service.Create(collection, body)
 	if err != nil {
-		RespondError(w, http.StatusNotFound, err.Error())
+		RespondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
@@ -82,8 +84,11 @@ func (h *Handler) Replace(w http.ResponseWriter, r *http.Request) {
 	collection := r.PathValue("name")
 	id := r.PathValue("id")
 
-	body := map[string]any{}
-	json.NewDecoder(r.Body).Decode(&body)
+	body, err := validateBody(r)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	item, err := h.Service.Replace(collection, id, body)
 	if err != nil {
@@ -99,8 +104,11 @@ func (h *Handler) Update(w http.ResponseWriter, r *http.Request) {
 	collection := r.PathValue("name")
 	id := r.PathValue("id")
 
-	body := map[string]any{}
-	json.NewDecoder(r.Body).Decode(&body)
+	body, err := validateBody(r)
+	if err != nil {
+		RespondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	item, err := h.Service.Update(collection, id, body)
 	if err != nil {

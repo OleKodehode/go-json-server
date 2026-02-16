@@ -2,6 +2,7 @@ package app
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -31,4 +32,27 @@ func RespondError(w http.ResponseWriter, status int, message string) {
 func totalHeader(w http.ResponseWriter, total int) {
 	w.Header().Set("X-Total-Count", strconv.Itoa(total))
 	w.Header().Set("Access-Control-Expose-Headers", "X-Total-Count")
+}
+
+// validateBody checks whether a request has a valid JSON body
+func validateBody (r *http.Request) (map[string]any, error) {
+	item := map[string]any{}
+
+	// Check to see if there is any body
+	if r.Body == nil {
+		return nil, fmt.Errorf("Request body is required")
+	}
+
+	// Try to decode - Return early if there is any error
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid JSON format: %v", err)
+	}
+
+	// Check the decode result to make sure it's not empty
+	if len(item) == 0 {
+		return nil, fmt.Errorf("Request body can't be empty")
+	}
+
+	return item, nil
 }
