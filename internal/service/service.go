@@ -33,6 +33,11 @@ func (s *Service) GetAll(collection string, filters map[string]string, controls 
 	}
 	
 	items = applyFilters(items, filters)
+
+	if query, ok := controls["_q"]; ok && query != "" {
+		items = applyGlobalSearch(items, query)
+	}
+
 	if sortField, ok := controls["_sort"]; ok && sortField != "" {
 		items = sortItems(items, sortField)
 	}

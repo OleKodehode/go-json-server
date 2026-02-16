@@ -57,7 +57,7 @@ func (s *Service) findByID(items []map[string]any, id string) (map[string]any, i
 }
 
 // globalSearch takes in a collection of items and a query string, and searches each item for any match to the query string
-func globalSearch(items []map[string]any, query string) []map[string]any {
+func applyGlobalSearch(items []map[string]any, query string) []map[string]any {
 	// Return early if query is empty
 	if query == "" {
 		return items
