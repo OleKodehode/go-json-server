@@ -44,7 +44,7 @@ func Load[T any](file string) (*DB[T], error){
 	return &DB[T]{Path: path, Data: dbData}, nil
 }
 
-func (db *DB[T]) save() error {
+func (db *DB[T]) saveNoLock() error {
 	// Marshal db.Data
 	jsonData, err := json.MarshalIndent(db.Data, "", "  ")
 	if err != nil {
@@ -54,6 +54,15 @@ func (db *DB[T]) save() error {
 	// Return error or nil
 	return os.WriteFile(db.Path, jsonData, 0644)
 }
+
+// Public method to save with locks
+func (db *DB[T]) Save() error {
+	db.mu.Lock()
+	defer db.mu.Unlock()
+	return db.saveNoLock()
+}
+
+
 
 // GetCollection returns a copy of the data avilable in the DB
 func (db *DB[T]) GetCollection(name string) ([]map[string]any, bool) {
@@ -87,5 +96,5 @@ func (db *DB[T]) UpdateCollection(name string, items []map[string]any) error {
 
 	data[name] = items
 
-	return db.save()
+	return db.saveNoLock()
 }
