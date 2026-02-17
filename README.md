@@ -52,7 +52,21 @@ The server supports special query parameters with the prefix `_` to control the 
 | \_sort     | **Sorting**: Field name to sort by                        | `?_sort=name`  |
 | \_limit    | **Legacy Limit**: Fallbackl for `_per_page`.              | `?_limit=10`   |
 
-Any other parameter is treated as a filter (I.E `?role=admin`)
+Any other parameter is treated as a filter (I.E `?role=admin`).
+
+Filtering supports some logical filters through suffixes:
+
+| Operator      | Description                              | Example              |
+| ------------- | ---------------------------------------- | -------------------- |
+| `<no suffix>` | Exact Match - Case Sensitive for strings | `?role=Developer`    |
+| `_contains`   | Case Insensitive substring matching      | `?role_contains=dev` |
+| `_gte`        | Greater than or Equal operator           | `?id_gte=10`         |
+| `_lte`        | Less than or Equal operator              | `?id_lte=10`         |
+| `_gt`         | Greater than operator                    | `?id_gt=10`          |
+| `_lt`         | Less than operator                       | `?id_lt=10`          |
+| `_ne`         | Not Equal operator                       | `?id_ne=10`          |
+
+`_contains` is meant for strings only, but may work (weirdly) with numbers, while the others are for numbers.
 
 ---
 
