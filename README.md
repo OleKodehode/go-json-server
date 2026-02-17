@@ -8,9 +8,9 @@ This project was built as a small learning project during my stay at [**Kodehode
 ## Features
 
 - **Zero External dependencies** - Only utilizing the GO standard Library
-- **Full CRUD API**
+- **Full CRUD API with pagination**
 - **Dynamic Collections** - (Created on first POST request to that collection's name)
-- **Middleware** - Logging & CORS
+- **Middleware** - Logging, CORS & Recovery
 - **CORS Support** (simple, permissive, json-server style)
 - **Automatic JSON DB creation** - No need to make any directories or files, automatically creates a json file in (`data/db.json`)
 
