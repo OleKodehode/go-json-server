@@ -105,11 +105,12 @@ go-json-server/
 │   │   ├── handlers.go - CRUD endpoints
 │   │   ├── helpers.go - Helper functions for responses (RespondJSON, totalHeader etc)
 │   │   ├── logging.go - Logging middleware
+│   │   ├── recover.go - Recovery middleware
 │   │   └── router.go - Handling routing for all endpoints
 │   ├── db/
-│   │   └── readwrite.go - Database load/save
+│   │   └── readwrite.go - Database operations (load, save, get, update)
 │   ├── model/
-│   │   └── data.go - Data struct
+│   │   └── data.go - Data type alias
 │   └── service/
 │       ├── comparison.go - Script to get the comparators (eq, gte, lte etc)
 │       ├── filters.go - Filter logic
@@ -120,7 +121,7 @@ go-json-server/
 │   └── index.html - Simple HTML page for root
 ├── data/
 │   └── db.json (auto-created)
-├── .gitignore - only db.json
+├── .gitignore - db.json and *.exe
 ├── go.mod
 └── README.md
 ```
